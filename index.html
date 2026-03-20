@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interview Scheduler · AI Automation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F5F3EE;
+      --surface: #FAFAF8;
+      --surface2: #EEECEA;
+      --ink: #1A1917;
+      --ink2: #6B6863;
+      --ink3: #A09C97;
+      --accent: #2D5BE3;
+      --accent-light: #EBF0FD;
+      --success: #1A7F4B;
+      --success-light: #E6F4ED;
+      --warn: #B45309;
+      --warn-light: #FEF3C7;
+      --danger: #C0392B;
+      --border: rgba(26,25,23,0.1);
+      --border2: rgba(26,25,23,0.06);
+      --radius: 10px;
+      --radius-lg: 16px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 18px;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .header-badge {
+      font-size: 11px;
+      font-weight: 500;
+      font-family: 'DM Mono', monospace;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.03em;
+    }
+
+    /* LAYOUT */
+    .page { max-width: 780px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    .hero {
+      margin-bottom: 2rem;
+      padding: 1.5rem 0 1rem;
+    }
+    .hero h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 30px;
+      font-weight: 400;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .hero h1 em { font-style: italic; color: var(--ink2); }
+    .hero p {
+      font-size: 14px;
+      color: var(--ink2);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 12px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .card-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* FORM ELEMENTS */
+    .field-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .field-label {
+      font-size: 13px;
+      color: var(--ink2);
+      font-weight: 400;
+    }
+    input[type="text"], select {
+      width: 100%;
+      height: 36px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0 12px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    input[type="text"]:focus, select:focus {
+      border-color: var(--accent);
+      background: white;
+    }
+    select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B6863' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 30px; }
+
+    /* AVAILABILITY ROW */
+    .avail-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 1fr 28px;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .avail-row select, .avail-row input { height: 32px; font-size: 12px; }
+
+    /* INTERVIEWER BLOCK */
+    .interviewer-card {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .icard-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .icard-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 500;
+      font-family: 'DM Mono', monospace;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .icard-name-input {
+      flex: 1;
+      height: 28px;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      padding: 0 4px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .icard-name-input:focus { border-bottom-color: var(--accent); background: transparent; }
+
+    /* BUTTONS */
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: none;
+      border: 1px dashed rgba(45,91,227,0.3);
+      border-radius: var(--radius);
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 4px;
+    }
+    .btn-ghost:hover { background: var(--accent-light); }
+
+    .btn-remove {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      background: none;
+      border: none;
+      color: var(--ink3);
+      cursor: pointer;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      flex-shrink: 0;
+    }
+    .btn-remove:hover { background: #FFE9E9; color: var(--danger); }
+
+    .btn-run {
+      width: 100%;
+      height: 46px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-run:hover { background: #1F47C0; }
+    .btn-run:active { transform: scale(0.99); }
+    .btn-run:disabled { background: var(--ink3); cursor: not-allowed; transform: none; }
+
+    /* SPINNER */
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* RESULTS */
+    .results-section { margin-top: 20px; }
+    .results-header {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .slot-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      margin-bottom: 10px;
+      position: relative;
+      overflow: hidden;
+      animation: slideIn 0.3s ease forwards;
+      opacity: 0;
+    }
+    .slot-card:nth-child(1) { animation-delay: 0.05s; }
+    .slot-card:nth-child(2) { animation-delay: 0.12s; }
+    .slot-card:nth-child(3) { animation-delay: 0.19s; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .slot-card.rank-1 { border-color: rgba(26,127,75,0.3); background: linear-gradient(135deg, white 0%, #F0FBF4 100%); }
+    .slot-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--border);
+      border-radius: 3px 0 0 3px;
+    }
+    .slot-card.rank-1::before { background: var(--success); }
+    .slot-card.rank-2::before { background: var(--accent); }
+    .slot-card.rank-3::before { background: var(--ink3); }
+
+    .slot-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .slot-rank-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.04em;
+    }
+    .rank-1 .slot-rank-badge { background: var(--success-light); color: var(--success); }
+    .rank-2 .slot-rank-badge { background: var(--accent-light); color: var(--accent); }
+    .rank-3 .slot-rank-badge { background: var(--surface2); color: var(--ink2); }
+
+    .slot-time {
+      font-family: 'Instrument Serif', serif;
+      font-size: 20px;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .slot-interviewers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+    .interviewer-pill {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-weight: 500;
+    }
+    .slot-reason { font-size: 13px; color: var(--ink2); line-height: 1.5; }
+    .slot-conflict {
+      font-size: 12px;
+      color: var(--warn);
+      background: var(--warn-light);
+      border-radius: 6px;
+      padding: 4px 10px;
+      margin-top: 6px;
+      display: inline-block;
+    }
+
+    .summary-card {
+      background: var(--surface2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.6;
+    }
+
+    .error-box {
+      background: #FFF0EE;
+      border: 1px solid rgba(192,57,43,0.2);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 12px;
+    }
+
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: var(--border2);
+      margin: 16px 0;
+    }
+
+    /* SECTION SPACING */
+    .section { margin-bottom: 8px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .page { padding: 1.25rem 1rem 3rem; }
+      .field-row { grid-template-columns: 1fr; gap: 4px; }
+      .avail-row { grid-template-columns: 90px 1fr 1fr 28px; }
+      .hero h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    Interview Scheduler
+  </div>
+  <span class="header-badge">AI-POWERED</span>
+</header>
+
+<div class="page">
+
+  <div class="hero">
+    <h1>Schedule interviews <em>without the back-and-forth</em></h1>
+    <p>Enter availability for the candidate and interviewers. The AI finds the best slots, resolves conflicts, and ranks options with reasoning.</p>
+  </div>
+
+  <!-- CANDIDATE SECTION -->
+  <div class="card section">
+    <div class="card-header">
+      <span class="card-title">Candidate</span>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Name</label>
+      <input type="text" id="cand-name" placeholder="e.g. Priya Sharma" value="Priya Sharma" />
+    </div>
+    <div class="field-row">
+      <label class="field-label">Role</label>
+      <input type="text" id="role" placeholder="e.g. Product Manager" value="AI Automation Intern" />
+    </div>
+    <div class="divider"></div>
+    <div class="card-title" style="margin-bottom:10px;">Availability windows</div>
+    <div id="cand-slots">
+      <div class="avail-row">
+        <select class="day-sel"><option>Monday</option><option selected>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option></select>
+        <input type="text" class="from-t" placeholder="From" value="2:00 PM" />
+        <input type="text" class="to-t" placeholder="To" value="6:00 PM" />
+        <button class="btn-remove" onclick="removeRow(this)" title="Remove">×</button>
+      </div>
+      <div class="avail-row">
+        <select class="day-sel"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option selected>Thursday</option><option>Friday</option></select>
+        <input type="text" class="from-t" placeholder="From" value="10:00 AM" />
+        <input type="text" class="to-t" placeholder="To" value="1:00 PM" />
+        <button class="btn-remove" onclick="removeRow(this)" title="Remove">×</button>
+      </div>
+    </div>
+    <button class="btn-ghost" onclick="addSlot('cand-slots')">＋ Add window</button>
+  </div>
+
+  <!-- INTERVIEWERS SECTION -->
+  <div class="card section">
+    <div class="card-header">
+      <span class="card-title">Interviewers</span>
+      <button class="btn-ghost" onclick="addInterviewer()" style="margin-top:0;padding:4px 10px;font-size:11px;">＋ Add</button>
+    </div>
+    <div id="interviewers">
+
+      <div class="interviewer-card">
+        <div class="icard-header">
+          <div class="icard-avatar" id="av-0">RM</div>
+          <input type="text" class="icard-name-input" placeholder="Interviewer name" value="Rahul Mehta" oninput="updateAvatar(this)" />
+          <button class="btn-remove" onclick="removeInterviewer(this)" title="Remove">×</button>
+        </div>
+        <div class="i-slots">
+          <div class="avail-row">
+            <select class="day-sel"><option>Monday</option><option selected>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option></select>
+            <input type="text" class="from-t" placeholder="From" value="3:00 PM" />
+            <input type="text" class="to-t" placeholder="To" value="6:00 PM" />
+            <button class="btn-remove" onclick="removeRow(this)">×</button>
+          </div>
+        </div>
+        <button class="btn-ghost" onclick="addSlot(this.previousElementSibling)" style="padding:3px 8px;font-size:11px;">＋ slot</button>
+      </div>
+
+      <div class="interviewer-card">
+        <div class="icard-header">
+          <div class="icard-avatar">AS</div>
+          <input type="text" class="icard-name-input" placeholder="Interviewer name" value="Ananya Singh" oninput="updateAvatar(this)" />
+          <button class="btn-remove" onclick="removeInterviewer(this)">×</button>
+        </div>
+        <div class="i-slots">
+          <div class="avail-row">
+            <select class="day-sel"><option>Monday</option><option selected>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option></select>
+            <input type="text" class="from-t" value="1:00 PM" />
+            <input type="text" class="to-t" value="5:00 PM" />
+            <button class="btn-remove" onclick="removeRow(this)">×</button>
+          </div>
+        </div>
+        <button class="btn-ghost" onclick="addSlot(this.previousElementSibling)" style="padding:3px 8px;font-size:11px;">＋ slot</button>
+      </div>
+
+      <div class="interviewer-card">
+        <div class="icard-header">
+          <div class="icard-avatar">KJ</div>
+          <input type="text" class="icard-name-input" placeholder="Interviewer name" value="Karan Joshi" oninput="updateAvatar(this)" />
+          <button class="btn-remove" onclick="removeInterviewer(this)">×</button>
+        </div>
+        <div class="i-slots">
+          <div class="avail-row">
+            <select class="day-sel"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option selected>Friday</option></select>
+            <input type="text" class="from-t" value="9:00 AM" />
+            <input type="text" class="to-t" value="12:00 PM" />
+            <button class="btn-remove" onclick="removeRow(this)">×</button>
+          </div>
+        </div>
+        <button class="btn-ghost" onclick="addSlot(this.previousElementSibling)" style="padding:3px 8px;font-size:11px;">＋ slot</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- OPTIONS -->
+  <div class="card section">
+    <div class="card-title" style="margin-bottom:12px;">Interview settings</div>
+    <div class="field-row">
+      <label class="field-label">Duration</label>
+      <select id="duration">
+        <option value="30">30 minutes</option>
+        <option value="45">45 minutes</option>
+        <option value="60" selected>60 minutes</option>
+        <option value="90">90 minutes</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <label class="field-label">Format</label>
+      <select id="format">
+        <option>1-on-1 (any one interviewer)</option>
+        <option>Panel (all interviewers together)</option>
+        <option>Sequential (back-to-back rounds)</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn-run" id="run-btn" onclick="runScheduler()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zm0 1a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11zm-.5 2.5h1v4.25l2.5 1.5-.5.87L7.5 9.75V5z" fill="currentColor"/></svg>
+    Find best interview slots
+  </button>
+
+  <div id="output"></div>
+
+</div>
+
+<script>
+  let iCount = 4;
+
+  function initials(name) {
+    return name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0,2) || '?';
+  }
+
+  function updateAvatar(input) {
+    const card = input.closest('.interviewer-card');
+    const av = card.querySelector('.icard-avatar');
+    if (av) av.textContent = initials(input.value);
+  }
+
+  function addSlot(container) {
+    if (typeof container === 'string') container = document.getElementById(container);
+    const div = document.createElement('div');
+    div.className = 'avail-row';
+    div.innerHTML = `<select class="day-sel"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option></select><input type="text" class="from-t" placeholder="From (e.g. 9:00 AM)"/><input type="text" class="to-t" placeholder="To"/><button class="btn-remove" onclick="removeRow(this)" title="Remove">×</button>`;
+    container.appendChild(div);
+  }
+
+  function removeRow(btn) { btn.closest('.avail-row').remove(); }
+
+  function removeInterviewer(btn) { btn.closest('.interviewer-card').remove(); }
+
+  function addInterviewer() {
+    const block = document.createElement('div');
+    block.className = 'interviewer-card';
+    const n = iCount++;
+    block.innerHTML = `
+      <div class="icard-header">
+        <div class="icard-avatar">?</div>
+        <input type="text" class="icard-name-input" placeholder="Interviewer ${n}" oninput="updateAvatar(this)"/>
+        <button class="btn-remove" onclick="removeInterviewer(this)">×</button>
+      </div>
+      <div class="i-slots"></div>
+      <button class="btn-ghost" onclick="addSlot(this.previousElementSibling)" style="padding:3px 8px;font-size:11px;">＋ slot</button>`;
+    document.getElementById('interviewers').appendChild(block);
+  }
+
+  function collectData() {
+    const candName = document.getElementById('cand-name').value || 'Candidate';
+    const role = document.getElementById('role').value || 'the role';
+    const duration = document.getElementById('duration').value;
+    const format = document.getElementById('format').value;
+
+    const candSlots = [];
+    document.querySelectorAll('#cand-slots .avail-row').forEach(r => {
+      const day = r.querySelector('.day-sel')?.value;
+      const from = r.querySelector('.from-t')?.value;
+      const to = r.querySelector('.to-t')?.value;
+      if (day && from && to) candSlots.push(`${day} ${from} – ${to}`);
+    });
+
+    const interviewers = [];
+    document.querySelectorAll('#interviewers .interviewer-card').forEach(block => {
+      const name = block.querySelector('.icard-name-input')?.value || 'Interviewer';
+      const slots = [];
+      block.querySelectorAll('.avail-row').forEach(r => {
+        const day = r.querySelector('.day-sel')?.value;
+        const from = r.querySelector('.from-t')?.value;
+        const to = r.querySelector('.to-t')?.value;
+        if (day && from && to) slots.push(`${day} ${from} – ${to}`);
+      });
+      if (slots.length) interviewers.push({ name, slots });
+    });
+
+    return { candName, role, duration, format, candSlots, interviewers };
+  }
+
+  async function runScheduler() {
+    const btn = document.getElementById('run-btn');
+    const output = document.getElementById('output');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner"></div> Analysing availability…';
+    output.innerHTML = '';
+
+    const d = collectData();
+    const interviewerText = d.interviewers.map(i => `- ${i.name}: ${i.slots.join(', ')}`).join('\n');
+
+    const prompt = `You are an expert interview scheduler. Analyse the availability below and suggest the top 3 interview time slots.
+
+Candidate: ${d.candName} (applying for: ${d.role})
+Candidate availability: ${d.candSlots.join(', ')}
+
+Interviewers:
+${interviewerText}
+
+Interview duration: ${d.duration} minutes
+Format: ${d.format}
+
+Rules:
+- A slot is valid only when BOTH the candidate AND at least one interviewer (for 1-on-1) or ALL interviewers (for Panel) are free for the full duration.
+- Identify any scheduling conflicts and explain how you resolved them.
+- Rank the 3 best slots by quality (most interviewers free, best time of day, etc.)
+
+Respond ONLY in this JSON (no markdown, no backticks, no extra text):
+{"slots":[{"rank":1,"day":"Tuesday","time":"3:00 PM – 4:00 PM","available_interviewers":["Name"],"reason":"One sentence why this is best.","conflict_note":"Any conflict or empty string"}],"summary":"2-sentence overall summary."}`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+      const data = await res.json();
+      const raw = data.content?.map(b => b.text || '').join('').trim();
+      let parsed;
+      try { parsed = JSON.parse(raw.replace(/```json|```/g, '').trim()); }
+      catch(e) { throw new Error('Could not parse AI response. Please try again.'); }
+      renderResults(parsed, d);
+    } catch(err) {
+      output.innerHTML = `<div class="error-box">⚠ ${err.message}</div>`;
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zm0 1a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11zm-.5 2.5h1v4.25l2.5 1.5-.5.87L7.5 9.75V5z" fill="currentColor"/></svg> Find best interview slots';
+  }
+
+  function renderResults(data, d) {
+    const output = document.getElementById('output');
+    const rankLabel = ['#1 — Best slot', '#2 — Good option', '#3 — Fallback'];
+    const rankClass = ['rank-1', 'rank-2', 'rank-3'];
+
+    let html = `<div class="results-section">
+      <div class="results-header">Recommended slots for ${d.candName}</div>`;
+
+    (data.slots || []).forEach((s, i) => {
+      const pills = (s.available_interviewers || []).map(n => `<span class="interviewer-pill">${n}</span>`).join('');
+      html += `<div class="slot-card ${rankClass[i] || ''}">
+        <div class="slot-top">
+          <span class="slot-rank-badge">${rankLabel[i] || 'Option'}</span>
+        </div>
+        <div class="slot-time">${s.day}, ${s.time}</div>
+        <div class="slot-interviewers">${pills}</div>
+        <div class="slot-reason">${s.reason}</div>
+        ${s.conflict_note ? `<div class="slot-conflict">⚠ ${s.conflict_note}</div>` : ''}
+      </div>`;
+    });
+
+    if (data.summary) {
+      html += `<div class="summary-card">${data.summary}</div>`;
+    }
+    html += `</div>`;
+    output.innerHTML = html;
+  }
+</script>
+</body>
+</html>
