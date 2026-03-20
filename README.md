@@ -8,11 +8,14 @@ An AI-powered interview scheduling tool that eliminates back-and-forth emails by
 
 ## 🔗 Live Demo
 
-**[➜ Open the tool](["https://erudite13.github.io/interview-scheduler/"]**
+**[➜ Open the tool](https://erudite13.github.io/interview-scheduler/)**
 
 ---
 
 ## 🎯 What It Does
+
+<img width="1098" height="856" alt="image" src="https://github.com/user-attachments/assets/0c40a280-06af-4e6e-a181-c0a8850105e4" />
+
 
 Enter availability windows for a candidate and 3–5 interviewers. The tool uses Claude AI to:
 
