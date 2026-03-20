@@ -8,7 +8,7 @@ An AI-powered interview scheduling tool that eliminates back-and-forth emails by
 
 ## 🔗 Live Demo
 
-**[➜ Open the tool](https://your-deployed-link-here)**
+**[➜ Open the tool]([https://your-deployed-link-here](https://erudite13.github.io/interview-scheduler/))**
 
 ---
 
